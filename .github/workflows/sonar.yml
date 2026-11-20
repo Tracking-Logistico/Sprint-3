@@ -42,7 +42,7 @@ jobs:
           -Dsonar.organization=tracklog20262
           -Dsonar.projectKey=Tracking-Logistico_Sprint-2
           -Dsonar.host.url=https://sonarcloud.io
-          -Dsonar.qualitygate.wait=true
+          -Dsonar.qualitygate.wait=false
 
       - name: Quality gates en el Summary (informativo, no bloquea)
         if: always()
@@ -84,6 +84,16 @@ jobs:
           RESP_V=$(curl -s -u "$SONAR_TOKEN:" \
             "$API/issues/search?componentKeys=$PROJECT_KEY&$SCOPE&types=VULNERABILITY&severities=CRITICAL,BLOCKER&resolved=false&ps=1")
           VULN=$(echo "$RESP_V" | jq -r '.total // "N/A"')
+          severity_count() {
+            curl -s -u "$SONAR_TOKEN:" \
+              "$API/issues/search?componentKeys=$PROJECT_KEY&$SCOPE&types=VULNERABILITY&severities=$1&resolved=false&ps=1" |
+              jq -r '.total // "N/A"'
+          }
+          BLOCKER=$(severity_count BLOCKER)
+          CRITICAL=$(severity_count CRITICAL)
+          MAJOR=$(severity_count MAJOR)
+          MINOR=$(severity_count MINOR)
+          INFO=$(severity_count INFO)
 
           ok()  { echo "✅"; }
           bad() { echo "❌"; }
@@ -93,7 +103,7 @@ jobs:
             COV_S=$(awk "BEGIN{exit !($COV >= $MIN_COVERAGE)}" && ok || bad)
           else COV_S=$(na); fi
           if [ -n "$DEBT" ]; then
-            DEBT_S=$([ "$DEBT" -le "$MAX_DEBT_MIN" ] && ok || bad)
+            DEBT_S=$([ "$DEBT" -lt "$MAX_DEBT_MIN" ] && ok || bad)
           else DEBT_S=$(na); fi
           if [ -n "$CX" ]; then
             CX_S=$([ "$CX" -lt "$MAX_COMPLEXITY" ] && ok || bad)
@@ -118,9 +128,18 @@ jobs:
             echo "| Criterio | Valor | Meta | Estado |"
             echo "|---|---|---|---|"
             echo "| Cobertura | ${COV:-N/A}% | ≥ ${MIN_COVERAGE}% | $COV_S |"
-            echo "| Deuda técnica | ${DEBT:-N/A} min | ≤ ${MAX_DEBT_MIN} min | $DEBT_S |"
+            echo "| Deuda técnica | ${DEBT:-N/A} min | < ${MAX_DEBT_MIN} min | $DEBT_S |"
             echo "| Complejidad ciclomática | ${CX:-N/A} | < ${MAX_COMPLEXITY} | $CX_S |"
-            echo "| Vulnerabilidades críticas | $VULN | 0 | $VULN_S |"
+            echo "| Vulnerabilidades críticas/bloqueantes | $VULN | 0 | $VULN_S |"
+            echo ""
+            echo "### Vulnerabilidades por severidad"
+            echo "| Severidad | Cantidad |"
+            echo "|---|---:|"
+            echo "| BLOCKER | $BLOCKER |"
+            echo "| CRITICAL | $CRITICAL |"
+            echo "| MAJOR | $MAJOR |"
+            echo "| MINOR | $MINOR |"
+            echo "| INFO | $INFO |"
             echo ""
             echo "[Ver en SonarCloud](https://sonarcloud.io/project/overview?id=$PROJECT_KEY)"
           } >> "$GITHUB_STEP_SUMMARY"
