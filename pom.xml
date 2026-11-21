@@ -14,4 +14,11 @@
         <module>tracking-orquestador-api</module>
         <module>tracking-rutas-api</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>4.27.0</version>
+        </dependency>
+    </dependencies>
 </project>
