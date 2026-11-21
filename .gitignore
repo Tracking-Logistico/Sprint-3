@@ -8,3 +8,10 @@
 respaldo_*.sql
 backup_*.sql
 *docs
+
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+out/
+

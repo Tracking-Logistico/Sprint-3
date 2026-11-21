@@ -55,7 +55,12 @@ public class ShipmentTrackingPage {
     }
 
     public boolean isBackButtonPresent() {
-        return !driver.findElements(backToOrdersButton).isEmpty();
+        try {
+            WebElement button = wait.until(ExpectedConditions.visibilityOfElementLocated(backToOrdersButton));
+            return button.isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public void clickBackToOrders() {
