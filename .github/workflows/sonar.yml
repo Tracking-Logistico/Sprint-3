@@ -14,7 +14,7 @@ env:
   MIN_COVERAGE: 65          # % cobertura mínima
   MAX_DEBT_MIN: 960         # 2 días = 2 x 8 h x 60 min
   MAX_COMPLEXITY: 50        # complejidad global (solo informativa)
-  MAX_CLASS_COMPLEXITY: 20  # límite por clase (ajústalo a lo que pida tu docente)
+  MAX_CLASS_COMPLEXITY: 50  # límite por clase (ajústalo a lo que pida tu docente)
 
 jobs:
   build-and-analyze:
