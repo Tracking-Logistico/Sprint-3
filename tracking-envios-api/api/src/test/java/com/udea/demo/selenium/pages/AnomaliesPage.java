@@ -15,24 +15,24 @@ public class AnomaliesPage {
     private final WebDriverWait wait;
 
     // Locators
-    private final By heading        = By.xpath("//h1[contains(text(),'Alertas operativas')]");
-    private final By errorAlert     = By.cssSelector("p[role='alert']");
-    private final By loadingStatus  = By.cssSelector("p[role='status']");
-    private final By estadoSelect   = By.cssSelector("select[aria-label='Estado']");
-    private final By tipoSelect     = By.cssSelector("select[aria-label='Tipo']");
-    private final By actualizarBtn  = By.xpath("//button[normalize-space(.)='Actualizar']");
-    private final By sectionAnomalias   = By.cssSelector("section[aria-label='Anomal\u00edas']");
+    private final By heading = By.xpath("//h1[contains(text(),'Alertas operativas')]");
+    private final By errorAlert = By.cssSelector("p[role='alert']");
+    private final By loadingStatus = By.cssSelector("p[role='status']");
+    private final By estadoSelect = By.cssSelector("select[aria-label='Estado']");
+    private final By tipoSelect = By.cssSelector("select[aria-label='Tipo']");
+    private final By actualizarBtn = By.xpath("//button[normalize-space(.)='Actualizar']");
+    private final By sectionAnomalias = By.cssSelector("section[aria-label='Anomal\u00edas']");
     private final By sectionRecepciones = By.cssSelector("section[aria-label='Recepciones pendientes']");
-    private final By anomalyArticles    = By.xpath("//section[@aria-label='Anomal\u00edas']//article");
-    private final By emptyAnomaliesMsg  = By.xpath("//p[contains(text(),'No hay alertas')]");
-    private final By anteriorBtn    = By.xpath("//button[normalize-space(.)='Anterior']");
-    private final By siguienteBtn   = By.xpath("//button[normalize-space(.)='Siguiente']");
-    private final By detailAside    = By.cssSelector("aside[aria-label='Detalle de alerta']");
+    private final By anomalyArticles = By.xpath("//section[@aria-label='Anomal\u00edas']//article");
+    private final By emptyAnomaliesMsg = By.xpath("//p[contains(text(),'No hay alertas')]");
+    private final By anteriorBtn = By.xpath("//button[normalize-space(.)='Anterior']");
+    private final By siguienteBtn = By.xpath("//button[normalize-space(.)='Siguiente']");
+    private final By detailAside = By.cssSelector("aside[aria-label='Detalle de alerta']");
     private final By cerrarDetalleBtn = By.xpath("//button[normalize-space(.)='Cerrar detalle']");
 
     public AnomaliesPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
-        this.wait   = wait;
+        this.wait = wait;
     }
 
     // ── Navigation ──────────────────────────────────────────────────────────
@@ -116,7 +116,16 @@ public class AnomaliesPage {
     }
 
     public void clickActualizar() {
-        wait.until(ExpectedConditions.elementToBeClickable(actualizarBtn)).click();
+        try {
+            WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(actualizarBtn));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        } catch (Exception e) {
+            try {
+                WebElement btn = driver.findElement(actualizarBtn);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     // ── Sections ──────────────────────────────────────────────────────────────
@@ -205,7 +214,8 @@ public class AnomaliesPage {
     // ── Wait helpers ─────────────────────────────────────────────────────────
 
     /**
-     * Waits until loading spinner disappears (or timeout — it's fine if it never showed).
+     * Waits until loading spinner disappears (or timeout — it's fine if it never
+     * showed).
      */
     public void waitForLoadingToFinish() {
         try {

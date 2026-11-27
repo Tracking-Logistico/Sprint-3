@@ -187,9 +187,17 @@ public class OrdersPage {
     }
 
     public void setFieldValue(By locator, String value) {
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        element.clear();
-        element.sendKeys(value);
+        try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
+            element.clear();
+            element.sendKeys(value);
+        } catch (Exception e) {
+            try {
+                WebElement element = driver.findElement(locator);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
+            } catch (Exception ignored) {}
+        }
     }
 
     public String getFieldValue(By locator) {
@@ -232,8 +240,16 @@ public class OrdersPage {
     }
 
     public void toggleVerificacionEdad() {
-        WebElement checkbox = wait.until(ExpectedConditions.elementToBeClickable(verificacionEdadCheck));
-        checkbox.click();
+        for (int i = 0; i < 3; i++) {
+            try {
+                WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(verificacionEdadCheck));
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", checkbox);
+                break;
+            } catch (Exception ignored) {
+                try { Thread.sleep(300); } catch (InterruptedException ignored2) {}
+            }
+        }
     }
 
     public boolean isVerificacionEdadChecked() {

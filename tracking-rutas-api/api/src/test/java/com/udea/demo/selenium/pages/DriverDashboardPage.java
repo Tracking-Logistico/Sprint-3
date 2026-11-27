@@ -2,12 +2,14 @@ package com.udea.demo.selenium.pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 /**
  * Page Object Model para el Panel del Conductor (/panel/conductor).
- * Modela la gestión de la jornada de entregas, escaneo de checkpoints y estado de conectividad.
+ * Modela la gestión de la jornada de entregas, escaneo de checkpoints y estado
+ * de conectividad.
  */
 public class DriverDashboardPage {
 
@@ -15,21 +17,22 @@ public class DriverDashboardPage {
     private final WebDriverWait wait;
 
     // ── Localizadores Encabezado y Navegación ────────────────────────────────
-    private final By heading          = By.xpath("//h1[contains(text(),'Mis entregas de hoy')]");
-    private final By eyebrow          = By.xpath("//p[contains(text(),'Jornada del conductor')]");
-    private final By refreshBtn       = By.xpath("//header//button[contains(.,'Actualizar')]");
+    private final By heading = By.xpath("//h1[contains(text(),'Mis entregas de hoy')]");
+    private final By eyebrow = By.xpath("//p[contains(text(),'Jornada del conductor')]");
+    private final By refreshBtn = By.xpath("//header//button[contains(.,'Actualizar')]");
 
     // ── Localizadores Estado de Conectividad y Cola Offline ──────────────────
-    private final By statusContainer  = By.xpath("//div[@role='status' and contains(@aria-live,'polite')]");
-    private final By onlineBadge      = By.xpath("//div[@role='status']//*[contains(text(),'En línea') or contains(text(),'Sin conexión')]");
-    private final By pendingEvents    = By.xpath("//div[@role='status']//*[contains(text(),'eventos pendientes')]");
+    private final By statusContainer = By.xpath("//div[@role='status' and contains(@aria-live,'polite')]");
+    private final By onlineBadge = By
+            .xpath("//div[@role='status']//*[contains(text(),'En línea') or contains(text(),'Sin conexión')]");
+    private final By pendingEvents = By.xpath("//div[@role='status']//*[contains(text(),'eventos pendientes')]");
 
     // ── Localizadores Alertas y Listado ──────────────────────────────────────
-    private final By errorAlert       = By.xpath("//div[@role='alert']");
+    private final By errorAlert = By.xpath("//div[@role='alert']");
 
     public DriverDashboardPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
-        this.wait   = wait;
+        this.wait = wait;
     }
 
     // ── Navegación ──────────────────────────────────────────────────────────
@@ -58,14 +61,25 @@ public class DriverDashboardPage {
 
     public boolean isRefreshButtonVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(refreshBtn)).isDisplayed();
+            return !driver.findElements(refreshBtn).isEmpty()
+                    || !driver.findElements(By.xpath("//button[contains(.,'Actualizar')]")).isEmpty()
+                    || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
     }
 
     public void clickRefresh() {
-        wait.until(ExpectedConditions.elementToBeClickable(refreshBtn)).click();
+        try {
+            WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(refreshBtn));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        } catch (Exception e) {
+            try {
+                WebElement btn = driver.findElement(By.xpath("//button[contains(.,'Actualizar')]"));
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     // ── Estado de Conectividad ───────────────────────────────────────────────

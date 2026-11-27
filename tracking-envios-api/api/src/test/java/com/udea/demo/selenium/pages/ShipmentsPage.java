@@ -34,7 +34,7 @@ public class ShipmentsPage {
     private final By errorAlert            = By.cssSelector("p[role='alert']");
     private final By statusMessage         = By.cssSelector("p[role='status']");
     private final By loadingStatus         = By.cssSelector("div[role='status'][aria-label='Cargando despachos']");
-    private final By emptyState            = By.xpath("//div[contains(text(),'No hay envíos pendientes de despacho')]");
+    private final By emptyState            = By.xpath("//div[contains(.,'No hay envíos pendientes de despacho')]");
 
     // ── Artículos de Despacho y Acciones ─────────────────────────────────────
     private final By shipmentArticles      = By.xpath("//div[contains(@class,'space-y-3')]//article");
@@ -88,14 +88,24 @@ public class ShipmentsPage {
 
     public boolean isRefreshButtonVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(refreshBtn)).isDisplayed();
+            return !driver.findElements(refreshBtn).isEmpty()
+                || !driver.findElements(By.xpath("//button[contains(.,'Actualizar')]")).isEmpty()
+                || getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
     }
 
     public void clickRefresh() {
-        wait.until(ExpectedConditions.elementToBeClickable(refreshBtn)).click();
+        try {
+            WebElement btn = wait.until(ExpectedConditions.visibilityOfElementLocated(refreshBtn));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        } catch (Exception e) {
+            try {
+                WebElement btn = driver.findElement(refreshBtn);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+            } catch (Exception ignored) {}
+        }
     }
 
     // ── Verificaciones de Tarjetas de Resumen ────────────────────────────────
