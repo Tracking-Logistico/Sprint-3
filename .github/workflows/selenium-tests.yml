@@ -19,6 +19,7 @@ permissions:
 
 env:
   FRONTEND_URL: https://logistrack-frontend-demo-s2g0.onrender.com
+  GATEWAY_URL: https://logistrack-orquestador-demo.onrender.com
 
 jobs:
   selenium-e2e-tests:
@@ -39,7 +40,7 @@ jobs:
       - name: Despertar backend y frontend en Render (Warm-up)
         run: |
           echo "🚀 Enviando señal para despertar frontend y backend..."
-          BACKEND_HEALTH="https://logistrack-orquestador-demo.onrender.com/health"
+          BACKEND_HEALTH="${{ env.GATEWAY_URL }}/health"
           FRONTEND_URL="${{ env.FRONTEND_URL }}"
 
           # 1. Tocar el frontend
@@ -66,7 +67,8 @@ jobs:
             --fail-at-end \
             -Dtest="*SeleniumTest" \
             -Dheadless=true \
-            -DbaseUrl=${{ env.FRONTEND_URL }}
+            -DbaseUrl=${{ env.FRONTEND_URL }} \
+            -DgatewayUrl=${{ env.GATEWAY_URL }}
 
       - name: Publicar reporte visual de pruebas en Checks / Tests
         uses: dorny/test-reporter@v1
