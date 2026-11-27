@@ -6,6 +6,12 @@
  <dependencies>
   <dependency><groupId>com.udea</groupId><artifactId>tracking-rutas-api-core</artifactId><version>${project.version}</version></dependency>
   <dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-test</artifactId><scope>test</scope></dependency>
+  <dependency>
+      <groupId>org.seleniumhq.selenium</groupId>
+      <artifactId>selenium-java</artifactId>
+      <version>4.27.0</version>
+      <scope>test</scope>
+  </dependency>
  </dependencies>
  <build>
   <plugins>
