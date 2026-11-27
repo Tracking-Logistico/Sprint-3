@@ -66,6 +66,7 @@ jobs:
             -B \
             --fail-at-end \
             -Dtest="*SeleniumTest" \
+            -Dsurefire.failIfNoSpecifiedTests=false \
             -Dheadless=true \
             -DbaseUrl=${{ env.FRONTEND_URL }} \
             -DgatewayUrl=${{ env.GATEWAY_URL }}
