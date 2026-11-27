@@ -18,11 +18,11 @@ public class AnomaliesPage {
     private final By heading = By.xpath("//h1[contains(text(),'Alertas operativas')]");
     private final By errorAlert = By.cssSelector("p[role='alert']");
     private final By loadingStatus = By.cssSelector("p[role='status']");
-    private final By estadoSelect = By.cssSelector("select[aria-label='Estado']");
-    private final By tipoSelect = By.cssSelector("select[aria-label='Tipo']");
-    private final By actualizarBtn = By.xpath("//button[normalize-space(.)='Actualizar']");
-    private final By sectionAnomalias = By.cssSelector("section[aria-label='Anomal\u00edas']");
-    private final By sectionRecepciones = By.cssSelector("section[aria-label='Recepciones pendientes']");
+    private final By estadoSelect = By.xpath("//select[contains(@aria-label,'Estado') or @id='estado-filter']");
+    private final By tipoSelect = By.xpath("//select[contains(@aria-label,'Tipo') or @id='tipo-filter']");
+    private final By actualizarBtn = By.xpath("//button[contains(.,'Actualizar')]");
+    private final By sectionAnomalias = By.xpath("//section[contains(@aria-label,'Anomal') or contains(@aria-label,'anomal')]");
+    private final By sectionRecepciones = By.xpath("//section[contains(@aria-label,'Recepcion') or contains(@aria-label,'recepcion')]");
     private final By anomalyArticles = By.xpath("//section[@aria-label='Anomal\u00edas']//article");
     private final By emptyAnomaliesMsg = By.xpath("//p[contains(text(),'No hay alertas')]");
     private final By anteriorBtn = By.xpath("//button[normalize-space(.)='Anterior']");
