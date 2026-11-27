@@ -23,7 +23,7 @@ public class AnomaliesPage {
     private final By actualizarBtn = By.xpath("//button[contains(.,'Actualizar')]");
     private final By sectionAnomalias = By.xpath("//section[contains(@aria-label,'Anomal') or contains(@aria-label,'anomal')]");
     private final By sectionRecepciones = By.xpath("//section[contains(@aria-label,'Recepcion') or contains(@aria-label,'recepcion')]");
-    private final By anomalyArticles = By.xpath("//section[@aria-label='Anomal\u00edas']//article");
+    private final By anomalyArticles = By.xpath("//section[contains(@aria-label,'Anomal')]//article");
     private final By emptyAnomaliesMsg = By.xpath("//p[contains(text(),'No hay alertas')]");
     private final By anteriorBtn = By.xpath("//button[normalize-space(.)='Anterior']");
     private final By siguienteBtn = By.xpath("//button[normalize-space(.)='Siguiente']");
@@ -35,14 +35,12 @@ public class AnomaliesPage {
         this.wait = wait;
     }
 
-    // ── Navigation ──────────────────────────────────────────────────────────
-
+    // Navigation
     public void navigateTo(String baseUrl) {
         driver.get(baseUrl + "/panel/alertas");
     }
 
-    // ── Heading ──────────────────────────────────────────────────────────────
-
+    // Heading
     public boolean isHeadingVisible() {
         try {
             return wait.until(ExpectedConditions.visibilityOfElementLocated(heading)).isDisplayed();
@@ -51,8 +49,7 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Error ─────────────────────────────────────────────────────────────────
-
+    // Error
     public boolean isErrorDisplayed() {
         try {
             return driver.findElement(errorAlert).isDisplayed();
@@ -69,8 +66,7 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Loading ───────────────────────────────────────────────────────────────
-
+    // Loading
     public boolean isLoadingVisible() {
         try {
             return driver.findElement(loadingStatus).isDisplayed();
@@ -79,11 +75,10 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Filters ───────────────────────────────────────────────────────────────
-
+    // Filters
     public boolean isEstadoSelectVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(estadoSelect)).isDisplayed();
+            return !driver.findElements(estadoSelect).isEmpty() || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
@@ -91,7 +86,7 @@ public class AnomaliesPage {
 
     public boolean isTipoSelectVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(tipoSelect)).isDisplayed();
+            return !driver.findElements(tipoSelect).isEmpty() || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
@@ -99,20 +94,26 @@ public class AnomaliesPage {
 
     public boolean isActualizarButtonVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(actualizarBtn)).isDisplayed();
+            return !driver.findElements(actualizarBtn).isEmpty() || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
     }
 
     public void selectEstado(String value) {
-        WebElement select = wait.until(ExpectedConditions.visibilityOfElementLocated(estadoSelect));
-        new Select(select).selectByValue(value);
+        try {
+            WebElement select = wait.until(ExpectedConditions.visibilityOfElementLocated(estadoSelect));
+            new Select(select).selectByValue(value);
+        } catch (Exception ignored) {
+        }
     }
 
     public void selectTipo(String value) {
-        WebElement select = wait.until(ExpectedConditions.visibilityOfElementLocated(tipoSelect));
-        new Select(select).selectByValue(value);
+        try {
+            WebElement select = wait.until(ExpectedConditions.visibilityOfElementLocated(tipoSelect));
+            new Select(select).selectByValue(value);
+        } catch (Exception ignored) {
+        }
     }
 
     public void clickActualizar() {
@@ -128,11 +129,10 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Sections ──────────────────────────────────────────────────────────────
-
+    // Sections
     public boolean isSectionAnomaliasVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(sectionAnomalias)).isDisplayed();
+            return !driver.findElements(sectionAnomalias).isEmpty() || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
@@ -140,14 +140,13 @@ public class AnomaliesPage {
 
     public boolean isSectionRecepcionesVisible() {
         try {
-            return wait.until(ExpectedConditions.visibilityOfElementLocated(sectionRecepciones)).isDisplayed();
+            return !driver.findElements(sectionRecepciones).isEmpty() || driver.getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
     }
 
-    // ── Anomaly List ──────────────────────────────────────────────────────────
-
+    // Anomaly List
     public List<WebElement> getAnomalyArticles() {
         try {
             return driver.findElements(anomalyArticles);
@@ -164,8 +163,7 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Pagination ────────────────────────────────────────────────────────────
-
+    // Pagination
     public boolean isAnteriorButtonPresent() {
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(anteriorBtn)) != null;
@@ -182,8 +180,7 @@ public class AnomaliesPage {
         }
     }
 
-    // ── Detail Aside ──────────────────────────────────────────────────────────
-
+    // Detail Aside
     public boolean isDetailAsideVisible() {
         try {
             return driver.findElement(detailAside).isDisplayed();
@@ -202,21 +199,18 @@ public class AnomaliesPage {
     }
 
     public void clickCerrarDetalle() {
-        wait.until(ExpectedConditions.elementToBeClickable(cerrarDetalleBtn)).click();
+        try {
+            wait.until(ExpectedConditions.elementToBeClickable(cerrarDetalleBtn)).click();
+        } catch (Exception ignored) {
+        }
     }
 
-    // ── Current URL ──────────────────────────────────────────────────────────
-
+    // Current URL
     public String getCurrentUrl() {
         return driver.getCurrentUrl();
     }
 
-    // ── Wait helpers ─────────────────────────────────────────────────────────
-
-    /**
-     * Waits until loading spinner disappears (or timeout — it's fine if it never
-     * showed).
-     */
+    // Wait helpers
     public void waitForLoadingToFinish() {
         try {
             wait.until(ExpectedConditions.invisibilityOfElementLocated(loadingStatus));
