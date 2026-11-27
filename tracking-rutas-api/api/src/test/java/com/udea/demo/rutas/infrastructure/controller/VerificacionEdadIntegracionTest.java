@@ -28,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -90,7 +91,7 @@ class VerificacionEdadIntegracionTest {
                 .numeroTracking("LT13" + sufijo).build();
         ReflectionTestUtils.setField(pedido, "requiereVerificacionEdad", true);
         pedidoId = pedidos.saveAndFlush(pedido).getId();
-        ruta = Ruta.crear(perfil.getId(), LocalDate.now());
+        ruta = Ruta.crear(perfil.getId(), LocalDate.now(ZoneId.of("America/Bogota")));
         ruta.agregarParada(pedidoId);
         ruta = rutas.saveAndFlush(ruta);
     }

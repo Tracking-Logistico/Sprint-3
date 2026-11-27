@@ -36,11 +36,35 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Despertar backend y frontend en Render (Warm-up)
+        run: |
+          echo "🚀 Enviando señal para despertar frontend y backend..."
+          BACKEND_HEALTH="https://logistrack-orquestador-demo.onrender.com/health"
+          FRONTEND_URL="${{ env.FRONTEND_URL }}"
+
+          # 1. Tocar el frontend
+          curl -s -m 15 "$FRONTEND_URL" > /dev/null || true
+
+          # 2. Esperar que el backend orquestador y los microservicios respondan 200 (hasta 3 minutos)
+          echo "Esperando que el backend responda en $BACKEND_HEALTH ..."
+          MAX_RETRIES=36
+          for ((i=1; i<=MAX_RETRIES; i++)); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 15 "$BACKEND_HEALTH" || true)
+            echo "Intento $i/$MAX_RETRIES - Código HTTP: $STATUS"
+            if [ "$STATUS" = "200" ]; then
+              echo "✅ Backend despierto y todos los servicios arriba."
+              break
+            fi
+            sleep 5
+          done
+          sleep 5
+
       - name: Ejecutar pruebas automatizadas en modo Headless contra Render
         run: |
-          mvn clean test \
+          mvn test \
             -B \
             --fail-at-end \
+            -Dtest="*SeleniumTest" \
             -Dheadless=true \
             -DbaseUrl=${{ env.FRONTEND_URL }}
 
