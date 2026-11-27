@@ -1,0 +1,80 @@
+name: Pruebas Automatizadas E2E (Selenium)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - 'preparetest_*'
+      - 'prueb-*'
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+env:
+  FRONTEND_URL: https://logistrack-frontend-demo-s2g0.onrender.com
+
+jobs:
+  selenium-e2e-tests:
+    name: Ejecución de Pruebas Selenium
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código fuente
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Ejecutar pruebas automatizadas en modo Headless contra Render
+        run: |
+          mvn clean test \
+            -B \
+            --fail-at-end \
+            -Dheadless=true \
+            -DbaseUrl=${{ env.FRONTEND_URL }}
+
+      - name: Publicar reporte visual de pruebas en Checks / Tests
+        uses: dorny/test-reporter@v1
+        if: always()
+        continue-on-error: true
+        with:
+          name: Reporte de Pruebas Automatizadas (Selenium & Unitarias)
+          path: '**/target/surefire-reports/*.xml'
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: Publicar resumen en el Summary del Workflow
+        if: always()
+        run: |
+          echo "## 📊 Resumen de Ejecución de Pruebas Automatizadas" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Entorno objetivo:** [${{ env.FRONTEND_URL }}](${{ env.FRONTEND_URL }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Modo de ejecución:** Headless (Google Chrome)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Módulo | Directorio |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Identidad | \`tracking-identidad-api\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Envíos | \`tracking-envios-api\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rutas | \`tracking-rutas-api\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Orquestador | \`tracking-orquestador-api\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Consulta los detalles y trazas individuales en la pestaña **Tests** o descarga los reportes adjuntos." >> $GITHUB_STEP_SUMMARY
+
+      - name: Guardar reportes de ejecución como artefacto
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reportes-surefire-junit
+          path: '**/target/surefire-reports/*.xml'
+          retention-days: 7
