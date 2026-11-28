@@ -21,27 +21,28 @@ public class ShipmentsPage {
     private final WebDriverWait wait;
 
     // ── Localizadores Encabezado y Métricas ───────────────────────────────────
-    private final By heading               = By.xpath("//h1[contains(text(),'Centro de despachos')]");
-    private final By eyebrow               = By.xpath("//header//p[contains(text(),'Operación logística')]");
-    private final By description           = By.xpath("//header//p[contains(text(),'Activa el seguimiento, imprime etiquetas')]");
-    private final By refreshBtn            = By.xpath("//header//button[contains(.,'Actualizar')]");
-    private final By summaryCards          = By.xpath("//div[contains(@class,'grid')]//div[contains(@class,'rounded-2xl') and contains(@class,'bg-card')]");
-    private final By summaryPrepOrTransit  = By.xpath("//div[contains(.,'En preparación o tránsito')]");
-    private final By summaryWithoutTracking= By.xpath("//div[contains(.,'Sin tracking')]");
-    private final By summaryInTransit      = By.xpath("//div[contains(.,'En tránsito')]");
+    private final By heading = By.xpath("//h1[contains(text(),'Centro de despachos')]");
+    private final By eyebrow = By.xpath("//header//p[contains(text(),'Operación logística')]");
+    private final By description = By.xpath("//header//p[contains(text(),'Activa el seguimiento, imprime etiquetas')]");
+    private final By refreshBtn = By.xpath("//header//button[contains(.,'Actualizar')]");
+    private final By summaryCards = By.xpath(
+            "//div[contains(@class,'grid')]//div[contains(@class,'rounded-2xl') and contains(@class,'bg-card')]");
+    private final By summaryPrepOrTransit = By.xpath("//div[contains(.,'En preparación o tránsito')]");
+    private final By summaryWithoutTracking = By.xpath("//div[contains(.,'Sin tracking')]");
+    private final By summaryInTransit = By.xpath("//div[contains(.,'En tránsito')]");
 
     // ── Estados y Alertas ────────────────────────────────────────────────────
-    private final By errorAlert            = By.cssSelector("p[role='alert']");
-    private final By statusMessage         = By.cssSelector("p[role='status']");
-    private final By loadingStatus         = By.cssSelector("div[role='status'][aria-label='Cargando despachos']");
-    private final By emptyState            = By.xpath("//div[contains(.,'No hay envíos pendientes de despacho')]");
+    private final By errorAlert = By.cssSelector("p[role='alert']");
+    private final By statusMessage = By.cssSelector("p[role='status']");
+    private final By loadingStatus = By.cssSelector("div[role='status'][aria-label='Cargando despachos']");
+    private final By emptyState = By.xpath("//div[contains(.,'No hay envíos pendientes de despacho')]");
 
     // ── Artículos de Despacho y Acciones ─────────────────────────────────────
-    private final By shipmentArticles      = By.xpath("//div[contains(@class,'space-y-3')]//article");
-    private final By activarTrackingBtn    = By.xpath(".//button[contains(.,'Activar tracking')]");
-    private final By descargarEtiquetaBtn  = By.xpath(".//button[contains(.,'Descargar etiqueta')]");
-    private final By recibidoEnOrigenBtn   = By.xpath(".//button[contains(.,'Recibido en origen')]");
-    private final By pasarATransitoBtn     = By.xpath(".//button[contains(.,'Pasar a tránsito')]");
+    private final By shipmentArticles = By.xpath("//div[contains(@class,'space-y-3')]//article");
+    private final By activarTrackingBtn = By.xpath(".//button[contains(.,'Activar tracking')]");
+    private final By descargarEtiquetaBtn = By.xpath(".//button[contains(.,'Descargar etiqueta')]");
+    private final By recibidoEnOrigenBtn = By.xpath(".//button[contains(.,'Recibido en origen')]");
+    private final By pasarATransitoBtn = By.xpath(".//button[contains(.,'Pasar a tránsito')]");
 
     public ShipmentsPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
@@ -89,8 +90,8 @@ public class ShipmentsPage {
     public boolean isRefreshButtonVisible() {
         try {
             return !driver.findElements(refreshBtn).isEmpty()
-                || !driver.findElements(By.xpath("//button[contains(.,'Actualizar')]")).isEmpty()
-                || getCurrentUrl().contains("login");
+                    || !driver.findElements(By.xpath("//button[contains(.,'Actualizar')]")).isEmpty()
+                    || getCurrentUrl().contains("login");
         } catch (Exception e) {
             return false;
         }
@@ -104,7 +105,8 @@ public class ShipmentsPage {
             try {
                 WebElement btn = driver.findElement(refreshBtn);
                 ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
     }
 
