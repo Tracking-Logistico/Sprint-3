@@ -199,8 +199,9 @@ public class OrdersPage {
     }
 
     public void setFieldValue(By locator, String value) {
-        // 1) Esperar a que el campo exista, sea visible y esté habilitado (no solo presente en el DOM).
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        // 1) Esperar a que el campo esté presente en el DOM (no abortar si aún no es clickeable),
+        //    desplazarlo a la vista y luego rellenar. La verificación de valor sigue abajo.
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
         scrollIntoView(element);
 
         // 2) Escribir con eventos reales de teclado (los que escucha React); si falla, no abortar en silencio.
