@@ -163,6 +163,11 @@ public class OrdersPage {
                               String telDestinatario, String descripcion,
                               String peso, String largo, String ancho, String alto,
                               String tipoServicio, boolean verificarEdad) {
+        // Esperar a que el diálogo modal (div[role='dialog']) esté montado y sus
+        // campos visibles antes de diligenciar el formulario. React puede estar
+        // re-renderizando justo tras abrir el modal.
+        wait.until(ExpectedConditions.visibilityOfElementLocated(dialogContainer));
+        wait.until(ExpectedConditions.presenceOfElementLocated(direccionOrigenInput));
         setFieldValue(direccionOrigenInput, dirOrigen);
         setFieldValue(ciudadOrigenInput, ciudadOrigen);
         setFieldValue(remitenteTelefono, telRemitente);
@@ -185,24 +190,152 @@ public class OrdersPage {
         }
     }
 
+    /**
+     * Establece {@code value} en el campo localizado por {@code locator} y verifica
+     * que el valor realmente se conserve.
+     *
+     * <ol>
+     *   <li>Espera a que el elemento sea visible y clickeable (el modal/input de
+     *   React puede seguir montando o re-renderizando).</li>
+     *   <li>Hace {@code scrollIntoView}, {@code clear()} y {@code sendKeys(value)}.</li>
+     *   <li>Verifica que {@link #getFieldValue(By)} coincida con {@code value}.</li>
+     *   <li>Si el valor queda vacío o cambia tras un re-render, aplica el setter
+     *   nativo de React ({@code HTMLInputElement.prototype.value} /
+     *   {@code HTMLTextAreaElement.prototype.value}) y dispara {@code input} y
+     *   {@code change}.</li>
+     *   <li>Reintenta varias veces; si finalmente no logra establecer el valor,
+     *   lanza {@link IllegalStateException} con un mensaje claro.</li>
+     * </ol>
+     */
     public void setFieldValue(By locator, String value) {
-        try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
-            element.clear();
-            element.sendKeys(value);
-        } catch (Exception e) {
+        final String expected = value == null ? "" : value;
+        final int maxAttempts = 3;
+        String lastActual = null;
+        Throwable lastError = null;
+
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                WebElement element = driver.findElement(locator);
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set; setter.call(arguments[0], arguments[1]); arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
-            } catch (Exception ignored) {
+                WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+                scrollIntoView(element);
+
+                try {
+                    element.clear();
+                    element.sendKeys(expected);
+                } catch (Exception typingError) {
+                    // No abortar: verificar/reparar con JavaScript más abajo.
+                    lastError = typingError;
+                }
+
+                // Dar tiempo a que React procese el evento y re-renderice
+                // antes de verificar que el valor se conserve.
+                sleepQuietly(100);
+                if (fieldValueMatches(locator, expected)) {
+                    return;
+                }
+
+                // El valor quedó vacío o cambió tras un re-render de React.
+                WebElement current = driver.findElement(locator);
+                scrollIntoView(current);
+                applyNativeReactValue(current, expected);
+
+                sleepQuietly(100);
+                if (fieldValueMatches(locator, expected)) {
+                    return;
+                }
+                lastActual = getFieldValue(locator);
+            } catch (Exception e) {
+                lastError = e;
             }
+
+            sleepQuietly(150);
         }
+
+        // Último intento explícito con setter nativo antes de rendirse.
+        try {
+            WebElement element = driver.findElement(locator);
+            scrollIntoView(element);
+            applyNativeReactValue(element, expected);
+            sleepQuietly(100);
+            if (fieldValueMatches(locator, expected)) {
+                return;
+            }
+            lastActual = getFieldValue(locator);
+        } catch (Exception e) {
+            lastError = e;
+        }
+
+        throw new IllegalStateException(
+                "No se pudo establecer el valor '" + expected + "' en el campo " + describeLocator(locator)
+                        + ". Valor actual='" + lastActual + "'."
+                        + (lastError != null ? " Último error: " + lastError : ""),
+                lastError);
+    }
+
+    /** Verifica (releyendo el elemento para evitar referencias obsoletas) que el valor coincida. */
+    private boolean fieldValueMatches(By locator, String expected) {
+        return valuesMatch(getFieldValue(locator), expected);
+    }
+
+    /** Compara valores tolerando espacios y normalización numérica. */
+    private boolean valuesMatch(String actual, String expected) {
+        if (actual == null) {
+            return false;
+        }
+        if (actual.equals(expected)) {
+            return true;
+        }
+        String trimmedActual = actual.trim();
+        String trimmedExpected = expected == null ? "" : expected.trim();
+        if (trimmedActual.equals(trimmedExpected)) {
+            return true;
+        }
+        try {
+            return new java.math.BigDecimal(trimmedActual).compareTo(new java.math.BigDecimal(trimmedExpected)) == 0;
+        } catch (NumberFormatException ignored) {
+            return false;
+        }
+    }
+
+    /** Setter nativo de React + eventos {@code input}/{@code change}. */
+    private void applyNativeReactValue(WebElement element, String value) {
+        String script = String.join("\n",
+                "const el = arguments[0];",
+                "const val = arguments[1];",
+                "let proto = window.HTMLInputElement.prototype;",
+                "if (typeof window.HTMLTextAreaElement !== 'undefined' && el instanceof window.HTMLTextAreaElement) {",
+                "  proto = window.HTMLTextAreaElement.prototype;",
+                "}",
+                "const desc = Object.getOwnPropertyDescriptor(proto, 'value');",
+                "if (desc && desc.set) { desc.set.call(el, val); } else { el.value = val; }",
+                "el.dispatchEvent(new Event('input', { bubbles: true }));",
+                "el.dispatchEvent(new Event('change', { bubbles: true }));");
+        ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(script, element, value);
+    }
+
+    private void scrollIntoView(WebElement element) {
+        try {
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                    "arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void sleepQuietly(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    private String describeLocator(By locator) {
+        return locator == null ? "<null>" : locator.toString();
     }
 
     public String getFieldValue(By locator) {
         try {
-            return driver.findElement(locator).getAttribute("value");
+            String value = driver.findElement(locator).getAttribute("value");
+            return value == null ? "" : value;
         } catch (Exception e) {
             return "";
         }
@@ -226,10 +359,23 @@ public class OrdersPage {
     }
 
     public void selectTipoServicio(String value) {
-        try {
-            WebElement selectElement = wait.until(ExpectedConditions.visibilityOfElementLocated(serviceSelect));
-            new Select(selectElement).selectByValue(value);
-        } catch (Exception ignored) {
+        if (value == null || value.isEmpty()) {
+            return;
+        }
+        // Reintentar hasta que la opción quede seleccionada (el select puede
+        // re-renderizarse tras un re-render de React).
+        for (int attempt = 0; attempt < 3; attempt++) {
+            try {
+                WebElement selectElement = wait.until(ExpectedConditions.visibilityOfElementLocated(serviceSelect));
+                scrollIntoView(selectElement);
+                new Select(selectElement).selectByValue(value);
+                if (value.equals(getSelectedTipoServicio())) {
+                    return;
+                }
+            } catch (Exception ignored) {
+                // reintentar
+            }
+            sleepQuietly(150);
         }
     }
 

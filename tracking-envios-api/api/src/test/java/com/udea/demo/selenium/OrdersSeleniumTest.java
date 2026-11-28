@@ -203,6 +203,10 @@ class OrdersSeleniumTest extends BaseSeleniumTest {
         ordersPage.navigateTo(baseUrl);
         ordersPage.clickSolicitarEnvio();
 
+        // Asegurar que el diálogo modal esté visible antes de diligenciar el formulario
+        assertTrue(ordersPage.isDialogVisible(),
+                "El diálogo modal de solicitud de envío debe estar visible antes de completar el formulario");
+
         ordersPage.fillOrderForm(
                 "Calle 67 # 53-108",
                 "Medellin",
