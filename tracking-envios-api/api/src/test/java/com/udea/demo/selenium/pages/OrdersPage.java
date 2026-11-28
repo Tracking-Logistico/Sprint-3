@@ -1,6 +1,7 @@
 package com.udea.demo.selenium.pages;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -119,7 +120,15 @@ public class OrdersPage {
     }
 
     public void clickSolicitarEnvio() {
-        wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn)).click();
+        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn));
+        try {
+            btn.click();
+        } catch (Exception clickFailure) {
+            // El botón puede estar interceptado por una capa transitoria; clic JS como respaldo.
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+        }
+        // No intentar rellenar el formulario hasta que el diálogo esté visible y listo.
+        wait.until(ExpectedConditions.visibilityOfElementLocated(dialogContainer));
     }
 
     public boolean isRefreshButtonVisible() {
@@ -190,21 +199,53 @@ public class OrdersPage {
     }
 
     public void setFieldValue(By locator, String value) {
+        // 1) Esperar a que el campo exista, sea visible y esté habilitado (no solo presente en el DOM).
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(locator));
+        scrollIntoView(element);
+
+        // 2) Escribir con eventos reales de teclado (los que escucha React); si falla, no abortar en silencio.
         try {
-            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            ((org.openqa.selenium.JavascriptExecutor) driver)
-                    .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
             element.clear();
             element.sendKeys(value);
-        } catch (Exception e) {
-            try {
-                WebElement element = driver.findElement(locator);
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
-                        "const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set; setter.call(arguments[0], arguments[1]); arguments[0].dispatchEvent(new Event('input', { bubbles: true }));",
-                        element, value);
-            } catch (Exception ignored) {
-            }
+        } catch (Exception typingFailure) {
+            // Se intenta el respaldo por JS más abajo.
         }
+
+        // 3) Si la escritura real no dejó el valor exacto, fijarlo de forma atómica con el setter
+        //    nativo y notificar a React (necesario para inputs controlados, p. ej. type=number).
+        if (!value.equals(readCurrentValue(locator))) {
+            WebElement fresh = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            scrollIntoView(fresh);
+            setValueViaJavascript(fresh, value);
+        }
+
+        // 4) Espera explícita (sin pausas fijas) a que el valor quede aplicado en el DOM.
+        wait.until(ExpectedConditions.attributeToBe(locator, "value", value));
+    }
+
+    private void scrollIntoView(WebElement element) {
+        try {
+            ((JavascriptExecutor) driver)
+                    .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
+        } catch (Exception ignored) {
+            // El desplazamiento es cosmético; no debe abortar el relleno.
+        }
+    }
+
+    private String readCurrentValue(By locator) {
+        try {
+            return driver.findElement(locator).getAttribute("value");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private void setValueViaJavascript(WebElement element, String value) {
+        ((JavascriptExecutor) driver).executeScript(
+                "const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+                        + "setter.call(arguments[0], arguments[1]);"
+                        + "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));",
+                element, value);
     }
 
     public String getFieldValue(By locator) {
