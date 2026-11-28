@@ -194,7 +194,7 @@ public class OrdersPage {
         } catch (Exception e) {
             try {
                 WebElement element = driver.findElement(locator);
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set; setter.call(arguments[0], arguments[1]); arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
             } catch (Exception ignored) {
             }
         }
