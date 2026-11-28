@@ -249,11 +249,10 @@ public class OrdersPage {
     }
 
     public String getFieldValue(By locator) {
-        try {
-            return driver.findElement(locator).getAttribute("value");
-        } catch (Exception e) {
-            return "";
-        }
+        // Espera a que el campo sea visible y no oculta errores como una cadena vacía.
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+        String value = element.getAttribute("value");
+        return value == null ? "" : value;
     }
 
     public boolean isFieldRequired(By locator) {
