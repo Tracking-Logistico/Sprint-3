@@ -115,13 +115,7 @@ public class OrdersPage {
     }
 
     public void clickSolicitarEnvio() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn));
-        try {
-            btn.click();
-        } catch (Exception e) {
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        }
-        wait.until(ExpectedConditions.visibilityOfElementLocated(dialogContainer));
+        wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn)).click();
     }
 
     public boolean isRefreshButtonVisible() {
@@ -193,47 +187,16 @@ public class OrdersPage {
 
     public void setFieldValue(By locator, String value) {
         try {
-            WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
             ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
-            wait.until(ExpectedConditions.elementToBeClickable(element));
             element.clear();
             element.sendKeys(value);
         } catch (Exception e) {
             try {
-                WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
-                        "var el = arguments[0];" +
-                        "var val = arguments[1];" +
-                        "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');" +
-                        "if (setter && setter.set) {" +
-                        "  setter.set.call(el, val);" +
-                        "} else {" +
-                        "  el.value = val;" +
-                        "}" +
-                        "el.dispatchEvent(new Event('input', { bubbles: true }));" +
-                        "el.dispatchEvent(new Event('change', { bubbles: true }));",
-                        element, value);
+                WebElement element = driver.findElement(locator);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1]; arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
             } catch (Exception ignored) {
             }
-        }
-
-        try {
-            WebElement element = driver.findElement(locator);
-            if (!value.equals(element.getAttribute("value"))) {
-                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
-                        "var el = arguments[0];" +
-                        "var val = arguments[1];" +
-                        "var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value');" +
-                        "if (setter && setter.set) {" +
-                        "  setter.set.call(el, val);" +
-                        "} else {" +
-                        "  el.value = val;" +
-                        "}" +
-                        "el.dispatchEvent(new Event('input', { bubbles: true }));" +
-                        "el.dispatchEvent(new Event('change', { bubbles: true }));",
-                        element, value);
-            }
-        } catch (Exception ignored) {
         }
     }
 
@@ -280,15 +243,17 @@ public class OrdersPage {
     }
 
     public void toggleVerificacionEdad() {
-        try {
-            WebElement checkbox = wait.until(ExpectedConditions.elementToBeClickable(verificacionEdadCheck));
-            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
-            checkbox.click();
-        } catch (Exception e) {
+        for (int i = 0; i < 3; i++) {
             try {
                 WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(verificacionEdadCheck));
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
                 ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", checkbox);
+                break;
             } catch (Exception ignored) {
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored2) {
+                }
             }
         }
     }

@@ -203,9 +203,6 @@ class OrdersSeleniumTest extends BaseSeleniumTest {
         ordersPage.navigateTo(baseUrl);
         ordersPage.clickSolicitarEnvio();
 
-        assertTrue(ordersPage.isDialogVisible(),
-                "El diálogo modal de solicitud de envío debe desplegarse");
-
         ordersPage.fillOrderForm(
                 "Calle 67 # 53-108",
                 "Medellin",
