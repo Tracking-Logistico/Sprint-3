@@ -1,7 +1,6 @@
 package com.udea.demo.selenium.pages;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -20,54 +19,50 @@ public class OrdersPage {
     private final WebDriverWait wait;
 
     // Localizadores Vista Cliente (Mis envios)
-    private final By clientHeading = By.xpath("//h1[contains(text(),'Mis envíos') or contains(text(),'Mis envios')]");
-    private final By clientEyebrow = By.xpath("//p[contains(text(),'Clientes')]");
-    private final By clientDescription = By.xpath("//p[contains(text(),'Consulta los pedidos asociados a tu cuenta')]");
-    private final By solicitarEnvioBtn = By
-            .xpath("//header//button[contains(.,'Solicitar envío') or contains(.,'Solicitar envio')]");
-    private final By refreshBtn = By.xpath("//header//button[contains(.,'Actualizar')]");
-    private final By clientSectionTitle = By
-            .xpath("//h2[contains(text(),'Tus envíos') or contains(text(),'Tus envios')]");
+    private final By clientHeading         = By.xpath("//h1[contains(text(),'Mis envíos') or contains(text(),'Mis envios')]");
+    private final By clientEyebrow         = By.xpath("//p[contains(text(),'Clientes')]");
+    private final By clientDescription     = By.xpath("//p[contains(text(),'Consulta los pedidos asociados a tu cuenta')]");
+    private final By solicitarEnvioBtn     = By.xpath("//header//button[contains(.,'Solicitar envío') or contains(.,'Solicitar envio')]");
+    private final By refreshBtn            = By.xpath("//header//button[contains(.,'Actualizar')]");
+    private final By clientSectionTitle    = By.xpath("//h2[contains(text(),'Tus envíos') or contains(text(),'Tus envios')]");
 
     // Localizadores Dialogo Solicitar / Corregir Envio
-    private final By dialogContainer = By.cssSelector("div[role='dialog']");
-    private final By dialogTitle = By.xpath("//div[@role='dialog']//h2");
-    private final By direccionOrigenInput = By.name("direccionOrigen");
-    private final By ciudadOrigenInput = By.name("ciudadOrigen");
-    private final By codigoPostalOrigen = By.name("codigoPostalOrigen");
-    private final By remitenteTelefono = By.name("remitenteTelefono");
+    private final By dialogContainer       = By.cssSelector("div[role='dialog']");
+    private final By dialogTitle           = By.xpath("//div[@role='dialog']//h2");
+    private final By direccionOrigenInput  = By.name("direccionOrigen");
+    private final By ciudadOrigenInput     = By.name("ciudadOrigen");
+    private final By codigoPostalOrigen    = By.name("codigoPostalOrigen");
+    private final By remitenteTelefono     = By.name("remitenteTelefono");
     private final By direccionDestinoInput = By.name("direccionDestino");
-    private final By ciudadDestinoInput = By.name("ciudadDestino");
-    private final By codigoPostalDestino = By.name("codigoPostalDestino");
-    private final By destinatarioNombre = By.name("destinatarioNombre");
-    private final By destinatarioTelefono = By.name("destinatarioTelefono");
-    private final By descripcionPaquete = By.name("descripcionPaquete");
-    private final By pesoKgInput = By.name("pesoKg");
-    private final By largoCmInput = By.name("largoCm");
-    private final By anchoCmInput = By.name("anchoCm");
-    private final By altoCmInput = By.name("altoCm");
-    private final By serviceSelect = By.id("service");
+    private final By ciudadDestinoInput    = By.name("ciudadDestino");
+    private final By codigoPostalDestino   = By.name("codigoPostalDestino");
+    private final By destinatarioNombre    = By.name("destinatarioNombre");
+    private final By destinatarioTelefono  = By.name("destinatarioTelefono");
+    private final By descripcionPaquete    = By.name("descripcionPaquete");
+    private final By pesoKgInput           = By.name("pesoKg");
+    private final By largoCmInput          = By.name("largoCm");
+    private final By anchoCmInput          = By.name("anchoCm");
+    private final By altoCmInput           = By.name("altoCm");
+    private final By serviceSelect         = By.id("service");
     private final By verificacionEdadCheck = By.id("requiereVerificacionEdad");
-    private final By submitOrderBtn = By.xpath("//button[@type='submit' and @form='order-form']");
-    private final By cancelDialogBtn = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Cancelar']");
+    private final By submitOrderBtn        = By.xpath("//button[@type='submit' and @form='order-form']");
+    private final By cancelDialogBtn       = By.xpath("//div[@role='dialog']//button[normalize-space(.)='Cancelar']");
 
     // Localizadores Filtros Cliente (MyShipmentsFilters)
-    private final By statusFilterSelect = By.id("shipments-status-filter");
-    private final By dateFromInput = By.id("shipments-date-from");
-    private final By dateToInput = By.id("shipments-date-to");
-    private final By sortSelect = By.id("shipments-sort");
-    private final By emptyStateContainer = By.xpath(
-            "//div[contains(@class,'text-center') and (contains(.,'No tienes pedidos') or contains(.,'No tienes envíos') or contains(.,'Crear primer envío'))]");
-    private final By anteriorPageBtn = By.xpath("//button[normalize-space(.)='Anterior']");
-    private final By siguientePageBtn = By.xpath("//button[normalize-space(.)='Siguiente']");
+    private final By statusFilterSelect    = By.id("shipments-status-filter");
+    private final By dateFromInput         = By.id("shipments-date-from");
+    private final By dateToInput           = By.id("shipments-date-to");
+    private final By sortSelect            = By.id("shipments-sort");
+    private final By emptyStateContainer   = By.xpath("//div[contains(@class,'text-center') and (contains(.,'No tienes pedidos') or contains(.,'No tienes envíos') or contains(.,'Crear primer envío'))]");
+    private final By anteriorPageBtn       = By.xpath("//button[normalize-space(.)='Anterior']");
+    private final By siguientePageBtn      = By.xpath("//button[normalize-space(.)='Siguiente']");
 
     // Localizadores Vista Operador (Bandeja de pedidos)
-    private final By operatorHeading = By.xpath("//h1[contains(text(),'Bandeja de pedidos')]");
-    private final By operatorEyebrow = By.xpath("//p[contains(text(),'Operación') or contains(text(),'Operacion')]");
-    private final By operatorDescription = By.xpath("//p[contains(text(),'Confirma remitente, destinatario')]");
-    private final By operatorEmptyState = By
-            .xpath("//div[contains(.,'No hay solicitudes pendientes de revisión') or contains(.,'No hay pedidos')]");
-    private final By orderArticles = By.xpath("//article");
+    private final By operatorHeading       = By.xpath("//h1[contains(text(),'Bandeja de pedidos')]");
+    private final By operatorEyebrow       = By.xpath("//p[contains(text(),'Operación') or contains(text(),'Operacion')]");
+    private final By operatorDescription   = By.xpath("//p[contains(text(),'Confirma remitente, destinatario')]");
+    private final By operatorEmptyState    = By.xpath("//div[contains(.,'No hay solicitudes pendientes de revisión') or contains(.,'No hay pedidos')]");
+    private final By orderArticles         = By.xpath("//article");
 
     public OrdersPage(WebDriver driver, WebDriverWait wait) {
         this.driver = driver;
@@ -120,15 +115,7 @@ public class OrdersPage {
     }
 
     public void clickSolicitarEnvio() {
-        WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn));
-        try {
-            btn.click();
-        } catch (Exception clickFailure) {
-            // El botón puede estar interceptado por una capa transitoria; clic JS como respaldo.
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
-        }
-        // No intentar rellenar el formulario hasta que el diálogo esté visible y listo.
-        wait.until(ExpectedConditions.visibilityOfElementLocated(dialogContainer));
+        wait.until(ExpectedConditions.elementToBeClickable(solicitarEnvioBtn)).click();
     }
 
     public boolean isRefreshButtonVisible() {
@@ -172,10 +159,10 @@ public class OrdersPage {
     }
 
     public void fillOrderForm(String dirOrigen, String ciudadOrigen, String telRemitente,
-            String dirDestino, String ciudadDestino, String nombreDestinatario,
-            String telDestinatario, String descripcion,
-            String peso, String largo, String ancho, String alto,
-            String tipoServicio, boolean verificarEdad) {
+                              String dirDestino, String ciudadDestino, String nombreDestinatario,
+                              String telDestinatario, String descripcion,
+                              String peso, String largo, String ancho, String alto,
+                              String tipoServicio, boolean verificarEdad) {
         setFieldValue(direccionOrigenInput, dirOrigen);
         setFieldValue(ciudadOrigenInput, ciudadOrigen);
         setFieldValue(remitenteTelefono, telRemitente);
@@ -199,61 +186,26 @@ public class OrdersPage {
     }
 
     public void setFieldValue(By locator, String value) {
-        // 1) Esperar a que el campo esté presente en el DOM (no abortar si aún no es clickeable),
-        //    desplazarlo a la vista y luego rellenar. La verificación de valor sigue abajo.
-        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-        scrollIntoView(element);
-
-        // 2) Escribir con eventos reales de teclado (los que escucha React); si falla, no abortar en silencio.
         try {
+            WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+            ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
             element.clear();
             element.sendKeys(value);
-        } catch (Exception typingFailure) {
-            // Se intenta el respaldo por JS más abajo.
-        }
-
-        // 3) Si la escritura real no dejó el valor exacto, fijarlo de forma atómica con el setter
-        //    nativo y notificar a React (necesario para inputs controlados, p. ej. type=number).
-        if (!value.equals(readCurrentValue(locator))) {
-            WebElement fresh = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
-            scrollIntoView(fresh);
-            setValueViaJavascript(fresh, value);
-        }
-
-        // 4) Espera explícita (sin pausas fijas) a que el valor quede aplicado en el DOM.
-        wait.until(ExpectedConditions.attributeToBe(locator, "value", value));
-    }
-
-    private void scrollIntoView(WebElement element) {
-        try {
-            ((JavascriptExecutor) driver)
-                    .executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'nearest'});", element);
-        } catch (Exception ignored) {
-            // El desplazamiento es cosmético; no debe abortar el relleno.
-        }
-    }
-
-    private String readCurrentValue(By locator) {
-        try {
-            return driver.findElement(locator).getAttribute("value");
         } catch (Exception e) {
-            return null;
+            try {
+                WebElement element = driver.findElement(locator);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set; setter.call(arguments[0], arguments[1]); arguments[0].dispatchEvent(new Event('input', { bubbles: true }));", element, value);
+            } catch (Exception ignored) {
+            }
         }
-    }
-
-    private void setValueViaJavascript(WebElement element, String value) {
-        ((JavascriptExecutor) driver).executeScript(
-                "const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
-                        + "setter.call(arguments[0], arguments[1]);"
-                        + "arguments[0].dispatchEvent(new Event('input', { bubbles: true }));",
-                element, value);
     }
 
     public String getFieldValue(By locator) {
-        // Espera a que el campo sea visible y no oculta errores como una cadena vacía.
-        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        String value = element.getAttribute("value");
-        return value == null ? "" : value;
+        try {
+            return driver.findElement(locator).getAttribute("value");
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     public boolean isFieldRequired(By locator) {
@@ -294,8 +246,7 @@ public class OrdersPage {
         for (int i = 0; i < 3; i++) {
             try {
                 WebElement checkbox = wait.until(ExpectedConditions.presenceOfElementLocated(verificacionEdadCheck));
-                ((org.openqa.selenium.JavascriptExecutor) driver)
-                        .executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
+                ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView({block: 'center'});", checkbox);
                 ((org.openqa.selenium.JavascriptExecutor) driver).executeScript("arguments[0].click();", checkbox);
                 break;
             } catch (Exception ignored) {
